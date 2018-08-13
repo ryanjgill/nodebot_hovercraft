@@ -1,2 +1,2 @@
-# nodebot_hovercraft
-Hovercraft controlled with Tessel 2
+# NodeBot Hovercraft
+Hovercraft controlled with Tessel 2 using johnny-five and websockets.
