@@ -5,6 +5,7 @@
   "main": "index.js",
   "scripts": {
     "start": "node index.js",
+    "sass": "node-sass public/stylesheets/ -o public/stylesheets/",
     "test": "echo \"Error: no test specified\" && exit 1"
   },
   "repository": {
