@@ -1,0 +1,21 @@
+{
+  "short_name": "NodeBot",
+  "name": "NodeBot Hovercraft",
+  "icons": [
+    {
+      "src": "/images/android-chrome-192x192.png",
+      "type": "image/png",
+      "sizes": "192x192"
+    },
+    {
+      "src": "/images/android-chrome-512x512.png",
+      "type": "image/png",
+      "sizes": "512x512"
+    }
+  ],
+  "start_url": "/",
+  "background_color": "#da532c",
+  "display": "standalone",
+  "scope": "/",
+  "theme_color": "#2d2d2d"
+}

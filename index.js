@@ -11,6 +11,7 @@ let express = require('express')
   , board = new five.Board({
       io: new Tessel()
     })
+  , enableLogging = true
 
 
 function emitUserCount(socketIO) {
@@ -18,15 +19,17 @@ function emitUserCount(socketIO) {
   console.log('Total users: ', socketIO.engine.clientsCount)
 }
 
+function log(text) {
+  if (enableLogging) {
+    console.log(text);
+  }
+}
+
 app.use(express.static(path.join(__dirname + '/public')))
 
 // index route
 app.get('/', function (req, res, next) {
   res.sendFile(path.join(__dirname + '/public/index.html'))
-})
-// variable input controller route
-app.get('/controller', function (req, res, next) {
-  res.sendFile(path.join(__dirname + '/public/controller.html'))
 })
 
 // board ready event
@@ -50,7 +53,14 @@ board.on('ready', function (err) {
   let motor1 = new five.Motor({
     pins: {
       pwm: 'a5',
-      dir: 'a6'
+      dir: 'a4'
+    },
+    invertPWM: true
+  }),
+  motor11 = new five.Motor({
+    pins: {
+      pwm: 'a6',
+      dir: 'a7'
     },
     invertPWM: true
   })
@@ -58,30 +68,26 @@ board.on('ready', function (err) {
   , motor2 = new five.Motor({
     pins: {
       pwm: 'b5',
-      dir: 'b6'
+      dir: 'b4'
     },
     invertPWM: true
+  }),
+  motor22 = new five.Motor({
+    pins: {
+      pwm: 'b6',
+      dir: 'b7'
+    },
+    invertPWM: true
+  }),
+  hoverMotor = new five.Relay({
+    pin: 'a3'
   })
-
-  function forward(_speed) {
-    motor2.forward(_speed ? _speed : 255)
-  }
-
-  function reverse(_speed) {
-    motor2.reverse(_speed ? _speed : 255)
-  }
-
-  function turnLeft(_speed) {
-    motor1.reverse(_speed ? _speed : 255 * .9)
-  }
-
-  function turnRight(_speed) {
-    motor1.forward(_speed ? _speed : 255 * .9)
-  }
 
   function stop() {
     motor1.stop()
+    motor11.stop()
     motor2.stop()
+    motor22.stop()
   }
 
   // SocketIO events
@@ -90,32 +96,28 @@ board.on('ready', function (err) {
 
     emitUserCount(socketIO)
 
-    socket.on('forward', forward)
-
-    socket.on('reverse', reverse)
-
-    socket.on('turnLeft', turnLeft)
-
-    socket.on('turnRight', turnRight)
-
     // nipplejs variable input events
-    socket.on('steer', function (input) {
-      if (input.direction === 'right') {
-        //console.log('motor1:forward(' + input.force + ')')
+    socket.on('leftMotor', function (input) {
+      if (input.direction === 'forward') {
+        log('motor1:forward(' + input.force + ')')
         motor1.forward(input.force)
+        motor11.forward(input.force)
       } else {
-        //console.log('motor1:reverse(' + input.force + ')')
+        log('motor1:reverse(' + input.force + ')')
         motor1.reverse(input.force)
+        motor11.reverse(input.force)
       }
     })
 
-    socket.on('drive', function (input) {
+    socket.on('rightMotor', function (input) {
       if (input.direction === 'forward') {
-        //console.log('motor2:forward(' + input.force + ')')
+        log('motor2:forward(' + input.force + ')')
         motor2.forward(input.force)
+        motor22.forward(input.force)
       } else {
-        //console.log('motor2:reverse(' + input.force + ')')
+        log('motor2:reverse(' + input.force + ')')
         motor2.reverse(input.force)
+        motor22.reverse(input.force)
       }
     })
 
@@ -123,11 +125,24 @@ board.on('ready', function (err) {
       if (!motor) {
         stop()
       } else if (motor === 'leftMotor') {
-        //console.log('motor1:stop')
+        log('motor1:stop')
         motor1.stop()
+        motor11.stop()
       } else {
-        //console.log('motor2:stop')
+        log('motor2:stop')
         motor2.stop()
+        motor22.stop()
+      }
+    })
+
+    socket.on('toggleHover', function (value) {
+      console.log(value)
+      if (value && value === true) {
+        console.log('hoverMotor on')
+        hoverMotor.on()
+      } else {
+        console.log('hoverMotor off')
+        hoverMotor.off()
       }
     })
 
