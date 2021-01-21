@@ -25,7 +25,7 @@
     "express": "^4.16.3",
     "ip": "^1.1.5",
     "johnny-five": "^0.15.0",
-    "socket.io": "^2.1.1",
+    "socket.io": "^2.4.0",
     "tessel-io": "^1.2.0"
   }
 }
